@@ -1,65 +1,59 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import styles from '../styles/Home.module.scss'
+import {useState} from 'react'
+import jwt from 'jsonwebtoken'
+
+
+
 
 export default function Home() {
+
+const [username, setUsername] = useState <string> ('')
+const [password, setPassword] = useState <string> ('')
+const [message, setMessage]= useState <string> ('you are not logged in')
+
+
+
+  async function submitForm() {
+    const res = await fetch('api/login',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+        
+
+      },
+      body:JSON.stringify({username,password})
+    }).then((t)=>t.json())
+
+    const token= res.token
+
+    if(token){
+      const json= jwt.decode(token) as {[key:string]: string}
+      setMessage( `welcome ${json.username} and your are ${json.admin ? 'an admin!': 'you are not an admin!'}`)
+
+    }
+    else{
+      setMessage('oops somthing is not right')
+    }
+
+    
+    
+  }
+  
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+    <div>
+    <h1>{message} </h1>
+      <form>
+        <input type="text" value={username} onChange={e => setUsername(e.target.value)}>
+        </input>
+         <br/>
+       <input type="password" value={password} onChange={e => setPassword(e.target.value)} >
+        </input> 
+        <br/>
+       <input type="button" value="Login" onClick={submitForm} >
+        </input> 
+      </form>
     </div>
+      
   )
 }
